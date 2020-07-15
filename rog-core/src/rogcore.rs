@@ -127,6 +127,7 @@ impl RogCore {
         file.write_all(format!("{:?}\n", config.fan_mode).as_bytes())
             .unwrap_or_else(|err| error!("Could not write to {}, {:?}", path, err));
         self.set_pstate_for_fan_mode(FanLevel::from(config.fan_mode), config)?;
+        self.set_fan_curve_for_fan_mode(FanLevel::from(config.fan_mode), config)?;
         info!("Reloaded fan mode: {:?}", FanLevel::from(config.fan_mode));
         Ok(())
     }
@@ -142,6 +143,7 @@ impl RogCore {
             .unwrap_or_else(|err| error!("Could not write to {}, {:?}", path, err));
         info!("Fan mode set to: {:?}", FanLevel::from(config.fan_mode));
         self.set_pstate_for_fan_mode(FanLevel::from(n), config)?;
+        self.set_fan_curve_for_fan_mode(FanLevel::from(config.fan_mode), config)?;
         Ok(())
     }
 
@@ -157,6 +159,30 @@ impl RogCore {
             n = 0;
         }
         self.set_fan_mode(n, config)
+    }
+
+    fn set_fan_curve_for_fan_mode(
+        &self,
+        mode: FanLevel,
+        config: &Config,
+    ) -> Result<(), Box<dyn Error>> {
+        let mode_config = match mode {
+            FanLevel::Normal => &config.mode_performance.normal,
+            FanLevel::Boost => &config.mode_performance.boost,
+            FanLevel::Silent => &config.mode_performance.silent,
+        };
+        
+        if let Some(ref curve) = mode_config.fan_curve {
+            use rog_fan_curve::{ Fan, Board };
+            if let Some(board) = Board::from_board_name() {
+                curve.apply(board, Fan::Cpu)?;
+                curve.apply(board, Fan::Gpu)?;
+            } else {
+                warn!("Fan curve unsupported on this board.")
+            }
+        }
+        
+        Ok(())
     }
 
     fn set_pstate_for_fan_mode(

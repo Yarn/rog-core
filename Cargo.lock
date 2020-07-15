@@ -719,6 +719,7 @@ dependencies = [
  "intel-pstate",
  "log",
  "rog-client",
+ "rog_fan_curve",
  "rusb",
  "serde",
  "serde_derive",
@@ -726,6 +727,15 @@ dependencies = [
  "sysfs-class",
  "tokio",
  "uhid-virt",
+]
+
+[[package]]
+name = "rog_fan_curve"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfd3d98a4547eb3f5a3d229efbcfa5fdc393c071eb1a9d3de05695842ac85300"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

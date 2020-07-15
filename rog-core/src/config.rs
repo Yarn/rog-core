@@ -1,5 +1,6 @@
 use crate::virt_device::ConsumerKeys;
 use rog_client::aura_modes::AuraModes;
+use rog_fan_curve::Curve;
 use serde_derive::{Deserialize, Serialize};
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
@@ -109,6 +110,7 @@ pub struct IntelPState {
     pub min_percentage: u8,
     pub max_percentage: u8,
     pub no_turbo: bool,
+    pub fan_curve: Option<Curve>,
 }
 
 impl Default for IntelPState {
@@ -117,6 +119,7 @@ impl Default for IntelPState {
             min_percentage: 0,
             max_percentage: 100,
             no_turbo: false,
+            fan_curve: None,
         }
     }
 }
